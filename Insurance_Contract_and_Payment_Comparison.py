@@ -1,7 +1,9 @@
 import pandas as pd
 
-file_contracts_23 = r"\\Fs17\отчеты$\текущие отчеты 2017\МАКС\для пересылки\для Вани\! Перестрахование\2024\29072024\СК договоры 0109.csv"
-file_contracts_24 = r"\\Fs17\отчеты$\текущие отчеты 2017\МАКС\для пересылки\для Вани\! Перестрахование\2024\05082024\СК договоры 0109.csv"
+file_contracts_23 = r"СК договоры 0109.csv"
+file_contracts_24 = r"СК договоры 0109.csv"
+file_payments_23 = r"СК платежи 0109.csv"
+file_payments_24 = r"СК платежи 0109.csv"
 
 headers_contracts_23 = pd.read_csv(file_contracts_23, nrows = 0, index_col=0, on_bad_lines = 'skip', encoding_errors='ignore', sep=';', encoding ='cp1251', quoting=3).columns
 headers_contracts_24 = pd.read_csv(file_contracts_24, nrows = 0, index_col=0, on_bad_lines = 'skip', encoding_errors='ignore', sep=';', encoding ='cp1251', quoting=3).columns
@@ -9,6 +11,7 @@ headers_contracts_24 = pd.read_csv(file_contracts_24, nrows = 0, index_col=0, on
 compare_contracts = list(set(headers_contracts_23) & set(headers_contracts_24))
 compare_contracts
 # Loading takes 10-15 minutes!!!
+
 # Reading file 1
 payments_df_23 = pd.read_csv(file_payments_23, on_bad_lines = 'skip', encoding_errors='ignore', sep=';', encoding ='cp1251', quoting=3, usecols = compare_payments)
 print("Reading file 1 payments completed")
@@ -41,11 +44,11 @@ chenge_data_payment = partial_match_payment[partial_match_payment['_merge'] == '
 chenge_data_payment
 
 desappeard_data_payment = partial_match_payment[partial_match_payment['_merge'] == 'left_only']
-del desappeard_data_payment['_merge']
+desappeard_data_payment = desappeard_data_payment.drop(columns=['_merge'])  # Удаление столбца '_merge'
 desappeard_data_payment
 
 # Creating a new Excel file and saving data
-output_file = r"C:\Users\aleksandra.babkina\Desktop\Comparison_files 'payments'.xlsx"
+output_file = r"C:\Users\aleksandra.babkina\Desktop\Comparison_files_payments.xlsx"  # Путь без одиночных кавычек
 with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
     delited_data_payments_23.to_excel(writer, sheet_name='Existed_in_old_but_missing_in_new', index=False)
     delited_data_payments_24.to_excel(writer, sheet_name='Existed_in_new_but_missing_in_old', index=False)
@@ -68,13 +71,12 @@ chenge_data_contracts = partial_match_contracts[partial_match_contracts['_merge'
 chenge_data_contracts.head()
 
 desappeard_data_contracts = partial_match_contracts[partial_match_contracts['_merge'] == 'left_only']
-del desappeard_data_contracts['_merge']
+desappeard_data_contracts = desappeard_data_contracts.drop(columns=['_merge'])  # Удаление столбца '_merge'
 desappeard_data_contracts.head()
 
 # Creating a new Excel file and saving data
-output_file = r"C:\Users\aleksandra.babkina\Desktop\Comparison_files 'contracts 0109'.xlsx"
-with pd.ExcelWriter(output_file, engine='openpyxl') as writer:
-    # delited_data_contracts_23.to_excel(writer, sheet_name='Existed_in_old_but_missing_in_new', index=False)
+output_file_contracts = r"C:\Users\aleksandra.babkina\Desktop\Comparison_files_contracts.xlsx"  # Путь без одиночных кавычек
+with pd.ExcelWriter(output_file_contracts, engine='openpyxl') as writer:
     delited_data_contracts_24.to_excel(writer, sheet_name='Existed_in_new_but_missing_in_old', index=False)
     desappeard_data_contracts.to_excel(writer, sheet_name='Changed_in_new', index=False)
 
